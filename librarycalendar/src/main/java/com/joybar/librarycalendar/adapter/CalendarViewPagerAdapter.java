@@ -9,9 +9,7 @@ import android.util.Log;
 import com.joybar.librarycalendar.fragment.CalendarViewFragment;
 import com.joybar.librarycalendar.utils.DateUtils;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 
 
 /**

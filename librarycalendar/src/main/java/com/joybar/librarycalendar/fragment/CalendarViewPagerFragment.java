@@ -13,7 +13,6 @@ import com.joybar.librarycalendar.R;
 import com.joybar.librarycalendar.adapter.CalendarViewPagerAdapter;
 import com.joybar.librarycalendar.data.CalendarDate;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 
 

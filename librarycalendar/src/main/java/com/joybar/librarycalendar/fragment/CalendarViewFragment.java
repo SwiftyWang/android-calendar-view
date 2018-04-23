@@ -11,12 +11,10 @@ import android.widget.GridView;
 
 import com.joybar.librarycalendar.R;
 import com.joybar.librarycalendar.adapter.CalendarGridViewAdapter;
-import com.joybar.librarycalendar.adapter.CalendarViewPagerAdapter;
 import com.joybar.librarycalendar.controller.CalendarDateController;
 import com.joybar.librarycalendar.data.CalendarDate;
 import com.joybar.librarycalendar.utils.DateUtils;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
