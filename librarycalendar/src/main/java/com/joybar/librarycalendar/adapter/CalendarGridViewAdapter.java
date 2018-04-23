@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.joybar.librarycalendar.R;
 import com.joybar.librarycalendar.data.CalendarDate;
+import com.joybar.librarycalendar.data.Lunar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,27 +61,32 @@ public class CalendarGridViewAdapter extends BaseAdapter {
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
-        viewHolder.tv_day.setText(calendarDate.getSolar().solarDay + "");
+        viewHolder.tv_day.setText(String.valueOf(calendarDate.getSolar().solarDay));
 
         String str;
 
-        if (!TextUtils.isEmpty(calendarDate.getSolar().solar24Term)) {
-            str = calendarDate.getSolar().solar24Term;
-        } else if (!TextUtils.isEmpty(calendarDate.getSolar().solarFestivalName)) {
+        boolean isFestival = false;
+        if (!TextUtils.isEmpty(calendarDate.getSolar().solarFestivalName)) {
             str = calendarDate.getSolar().solarFestivalName;
+            isFestival = true;
+        } else if (!TextUtils.isEmpty(calendarDate.getLunar().lunarFestivalName)) {
+            str = calendarDate.getLunar().lunarFestivalName;
+            isFestival = true;
+        } else if (!TextUtils.isEmpty(calendarDate.getSolar().solar24Term)) {
+            str = calendarDate.getSolar().solar24Term;
         } else {
-            str = calendarDate.getLunar().getChinaDayString(mListData.get(position).getLunar().lunarDay);
+            str = Lunar.getChinaDayString(calendarDate.getLunar().lunarDay);
         }
         viewHolder.tv_lunar_day.setText(str);
-        if (mListData.get(position).isInThisMonth()) {
-            if (position % 7 == 0) {
+        if (calendarDate.isInThisMonth()) {
+            if (position % 7 == 0 || isFestival) {
                 viewHolder.tv_day.setTextColor(Color.RED);
             } else {
                 viewHolder.tv_day.setTextColor(Color.BLACK);
             }
         } else {
-            viewHolder.tv_day.setTextColor(Color.parseColor("#D7D7D7"));
-            viewHolder.tv_lunar_day.setTextColor(Color.parseColor("#D7D7D7"));
+            viewHolder.tv_day.setTextColor(Color.LTGRAY);
+            viewHolder.tv_lunar_day.setTextColor(Color.LTGRAY);
         }
         return convertView;
     }

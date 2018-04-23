@@ -165,7 +165,7 @@ public class LunarSolarConverter {
     /**
      * 国历节日 *表示放假日
      */
-    private final static String[] sFtv = {
+    private static String[] sFtv = {
             "0101*元旦", "0214 情人节", "0308 妇女节", "0312 植树节",
             "0315 消费者权益日", "0401 愚人节", "0501*劳动节", "0504 青年节",
             "0509 郝维节", "0512 护士节", "0601 儿童节", "0701 建党节",
@@ -175,10 +175,18 @@ public class LunarSolarConverter {
             "1225 圣诞节",
     };
 
+    public static void setSolarFtv(String[] sFtv) {
+        LunarSolarConverter.sFtv = sFtv;
+    }
+
+    public static void setLunarFtv(String[] lFtv) {
+        LunarSolarConverter.lFtv = lFtv;
+    }
+
     /**
      * 农历节日 *表示放假日
      */
-    private final static String[] lFtv = {
+    private static String[] lFtv = {
             "0101*春节、弥勒佛诞", "0106 定光佛诞", "0115 元宵节",
             "0208 释迦牟尼佛出家", "0215 释迦牟尼佛涅槃", "0209 海空上师诞",
             "0219 观世音菩萨诞", "0221 普贤菩萨诞", "0316 准提菩萨诞",
@@ -194,11 +202,11 @@ public class LunarSolarConverter {
     };
 
 
-	private static String[] principleTermNames = {"大寒", "雨水", "春分", "谷雨",
-			"小满", "夏至", "大暑", "处暑", "秋分", "霜降", "小雪", "冬至"};
+	private static String[] principleTermNames = {"大寒", "雨水", "春分", "穀雨",
+            "小滿", "夏至", "大暑", "處暑", "秋分", "霜降", "小雪", "冬至"};
 
-	private static String[] sectionalTermNames = {"小寒", "立春", "惊蛰", "清明",
-			"立夏", "芒种", "小暑", "立秋", "白露", "寒露", "立冬", "大雪"};
+	private static String[] sectionalTermNames = {"小寒", "立春", "驚蟄", "清明",
+            "立夏", "芒種", "小暑", "立秋", "白露", "寒露", "立冬", "大雪"};
     private final static int[] solarTermInfo = {
             0, 21208, 42467, 63836, 85337, 107014, 128867, 150921,
             173149, 195551, 218072, 240693, 263343, 285989, 308563, 331033,
