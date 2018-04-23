@@ -1,6 +1,8 @@
 package com.joybar.librarycalendar.controller;
 
 
+import android.util.LruCache;
+
 import com.joybar.librarycalendar.data.CalendarDate;
 import com.joybar.librarycalendar.data.Lunar;
 import com.joybar.librarycalendar.data.Solar;
@@ -18,8 +20,13 @@ import java.util.List;
  */
 public class CalendarDateController {
 
-    public static List<CalendarDate> getCalendarDate(int year, int month, HashSet<String> selectedDates) {
+    public static LruCache<Integer, List<CalendarDate>> cachedDate = new LruCache<>(24);
 
+    public static List<CalendarDate> getCalendarDate(int year, int month, HashSet<String> selectedDates) {
+        int cacheKey = year * 100 + month;
+        if (cachedDate.get(cacheKey) != null) {
+            return cachedDate.get(cacheKey);
+        }
         List<CalendarDate> mListDate = new ArrayList<>();
         List<CalendarUtils.CalendarSimpleDate> list = null;
         try {
@@ -39,7 +46,7 @@ public class CalendarDateController {
             Lunar lunar = LunarSolarConverter.SolarToLunar(solar);
             mListDate.add(new CalendarDate(month == list.get(i).getMonth(), isSelected, solar, lunar));
         }
-
+        cachedDate.put(cacheKey, mListDate);
         return mListDate;
     }
 

@@ -133,9 +133,6 @@ public class CalendarUtils {
         cal.setTime(sdf.parse(year + "-" + month + "-" + 1));
         cal.set(Calendar.DAY_OF_MONTH, 1);
         int begin = cal.get(Calendar.DAY_OF_WEEK) - 1;//获取每月号星期几
-        if (begin == 0) {
-            begin = 7;
-        }
         //重置
         cal.setTime(sdf.parse(year + "-" + month + "-" + 1));
         // int first = cal.get(Calendar.DAY_OF_WEEK);
@@ -143,13 +140,10 @@ public class CalendarUtils {
         int monthOfLastMonth = getMonthOfLastMonth(cal);
         int yearOfLastMonth = getYearOfLastMonth(cal);
         //填补上月的数据
-        for (int i = 0; i < begin - 1; i++) {
-            //每月第一天为星期一则不添加
-            if (begin != 1) {
-                CalendarSimpleDate calendarDate = new CalendarSimpleDate(yearOfLastMonth, monthOfLastMonth, dayOfLastMonth - begin + i + 2);
-                list.add(calendarDate);
-            }
-
+        //每月第一天为星期日则不添加
+        for (int i = 0; i < begin; i++) {
+            CalendarSimpleDate calendarDate = new CalendarSimpleDate(yearOfLastMonth, monthOfLastMonth, dayOfLastMonth - begin + i + 1);
+            list.add(calendarDate);
         }
         //填补本月的数据
         for (int i = 1; i <= count; i++) {
@@ -159,20 +153,13 @@ public class CalendarUtils {
 
         }
         //填补下月的数据
-        for (int i = 1; i <= (7 - (begin - 1 + count) % 7); i++) {
-            if ((7 - (begin - 1 + count) % 7) != 0 && (7 - (begin - 1 + count) % 7) != 7) {
-                int nextYear = year;
-//                int nextMonth = (month + 1) % 12;
-//                if (nextMonth == 1) {
-//                    nextYear = nextYear + 1;
-//                }
-                int nextMonth = month + 1;
-                if(nextMonth==13){
-                    nextMonth = 1;
-                }
-                CalendarSimpleDate calendarDate = new CalendarSimpleDate(nextYear, nextMonth, i);
-                list.add(calendarDate);
+        for (int i = 1; i < (7 - (begin - 1 + count) % 7); i++) {
+            int nextMonth = month + 1;
+            if (nextMonth == 13) {
+                nextMonth = 1;
             }
+            CalendarSimpleDate calendarDate = new CalendarSimpleDate(year, nextMonth, i);
+            list.add(calendarDate);
         }
         return list;
     }

@@ -18,8 +18,7 @@ import java.util.HashSet;
 public class CalendarViewPagerAdapter extends FragmentStatePagerAdapter {
 
     private static final String TAG = CalendarViewPagerAdapter.class.getSimpleName();
-    private final int number;
-
+    private int number;
     private int NUM_ITEMS = 200;
     private int NUM_ITEMS_CURRENT = NUM_ITEMS / 2;
     private boolean isChoiceModelSingle;
@@ -29,16 +28,19 @@ public class CalendarViewPagerAdapter extends FragmentStatePagerAdapter {
         super(fm);
         this.isChoiceModelSingle = isChoiceModelSingle;
         int thisMonthPosition = DateUtils.getYear() * 12 + DateUtils.getMonth() - 1;
-        if (startYear > 1970 && endYear > startYear) {
+        if (startYear > 1970 && endYear >= startYear) {
             NUM_ITEMS = (endYear - startYear + 1) * 12;
             int offset = thisMonthPosition - startYear * 12;
             if (offset > 0) {
                 NUM_ITEMS_CURRENT = offset;
+                number = thisMonthPosition - NUM_ITEMS_CURRENT;
             } else {
                 NUM_ITEMS_CURRENT = 0;
+                number = startYear * 12;
             }
+        } else {
+            number = thisMonthPosition - NUM_ITEMS_CURRENT;
         }
-        number = thisMonthPosition - NUM_ITEMS_CURRENT;
         mSelectedDate = selectedDate;
     }
 

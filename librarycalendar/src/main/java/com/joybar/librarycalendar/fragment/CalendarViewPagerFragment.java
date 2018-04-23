@@ -91,13 +91,12 @@ public class CalendarViewPagerFragment extends Fragment {
         myAdapter = new CalendarViewPagerAdapter(getChildFragmentManager(), isChoiceModelSingle, startYear, endYear, selectedDate);
         viewPager.setAdapter(myAdapter);
         viewPager.setCurrentItem(myAdapter.getCurrentPosition());
-        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        ViewPager.OnPageChangeListener pageChangeListener = new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
                 int year = myAdapter.getYearByPosition(position);
                 int month = myAdapter.getMonthByPosition(position);
-                // tv_date.setText(year+"-"+month+"");
-                onPageChangeListener.onPageChange(year, month);
+                CalendarViewPagerFragment.this.onPageChangeListener.onPageChange(year, month);
             }
 
             @Override
@@ -108,7 +107,9 @@ public class CalendarViewPagerFragment extends Fragment {
             @Override
             public void onPageScrollStateChanged(int state) {
             }
-        });
+        };
+        viewPager.addOnPageChangeListener(pageChangeListener);
+        pageChangeListener.onPageSelected(myAdapter.getCurrentPosition());
     }
 
     public void removeSelectedDate(CalendarDate calendarDate) {
