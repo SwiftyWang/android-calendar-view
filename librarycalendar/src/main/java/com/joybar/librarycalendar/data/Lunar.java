@@ -1,9 +1,12 @@
 package com.joybar.librarycalendar.data;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by joybar on 9/12/16.
  */
-public class Lunar {
+public class Lunar implements Parcelable {
     public boolean isleap;
     public int lunarDay;
     public int lunarMonth;
@@ -34,4 +37,43 @@ public class Lunar {
                 + ", isLFestival=" + isLFestival + ", lunarFestivalName="
                 + lunarFestivalName + "]";
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeByte(this.isleap ? (byte) 1 : (byte) 0);
+        dest.writeInt(this.lunarDay);
+        dest.writeInt(this.lunarMonth);
+        dest.writeInt(this.lunarYear);
+        dest.writeByte(this.isLFestival ? (byte) 1 : (byte) 0);
+        dest.writeString(this.lunarFestivalName);
+    }
+
+    public Lunar() {
+    }
+
+    protected Lunar(Parcel in) {
+        this.isleap = in.readByte() != 0;
+        this.lunarDay = in.readInt();
+        this.lunarMonth = in.readInt();
+        this.lunarYear = in.readInt();
+        this.isLFestival = in.readByte() != 0;
+        this.lunarFestivalName = in.readString();
+    }
+
+    public static final Parcelable.Creator<Lunar> CREATOR = new Parcelable.Creator<Lunar>() {
+        @Override
+        public Lunar createFromParcel(Parcel source) {
+            return new Lunar(source);
+        }
+
+        @Override
+        public Lunar[] newArray(int size) {
+            return new Lunar[size];
+        }
+    };
 }

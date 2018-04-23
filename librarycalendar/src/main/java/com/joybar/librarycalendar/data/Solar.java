@@ -1,9 +1,12 @@
 package com.joybar.librarycalendar.data;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by joybar on 9/12/16.
  */
-public class Solar {
+public class Solar implements Parcelable {
     public int solarDay;
     public int solarMonth;
     public int solarYear;
@@ -19,4 +22,50 @@ public class Solar {
                 + solar24Term + "]";
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.solarDay);
+        dest.writeInt(this.solarMonth);
+        dest.writeInt(this.solarYear);
+        dest.writeByte(this.isSFestival ? (byte) 1 : (byte) 0);
+        dest.writeString(this.solarFestivalName);
+        dest.writeString(this.solar24Term);
+    }
+
+    public Solar() {
+    }
+
+    protected Solar(Parcel in) {
+        this.solarDay = in.readInt();
+        this.solarMonth = in.readInt();
+        this.solarYear = in.readInt();
+        this.isSFestival = in.readByte() != 0;
+        this.solarFestivalName = in.readString();
+        this.solar24Term = in.readString();
+    }
+
+    public static final Parcelable.Creator<Solar> CREATOR = new Parcelable.Creator<Solar>() {
+        @Override
+        public Solar createFromParcel(Parcel source) {
+            return new Solar(source);
+        }
+
+        @Override
+        public Solar[] newArray(int size) {
+            return new Solar[size];
+        }
+    };
+
+    /**
+     *
+     * @return eg. 2018/4/10
+     */
+    public String getDateString() {
+        return solarYear + "/" + solarMonth + "/" + solarDay;
+    }
 }
