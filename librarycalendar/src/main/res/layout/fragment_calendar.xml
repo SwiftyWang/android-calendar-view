@@ -19,7 +19,7 @@
             android:layout_weight="1.0"
             android:gravity="center"
             android:text="@string/sun"
-            android:textColor="#fd9a9a"
+            android:textColor="@android:color/holo_red_light"
             android:textSize="12sp"/>
 
         <TextView
@@ -84,9 +84,9 @@
         android:layout_height="wrap_content"
         android:background="#FFFFFF"
         android:gravity="center"
-        android:horizontalSpacing="4dp"
+        android:horizontalSpacing="2dp"
         android:listSelector="#00000000"
         android:numColumns="7"
         android:stretchMode="columnWidth"
-        android:verticalSpacing="4dp"/>
+        android:verticalSpacing="2dp"/>
 </LinearLayout>

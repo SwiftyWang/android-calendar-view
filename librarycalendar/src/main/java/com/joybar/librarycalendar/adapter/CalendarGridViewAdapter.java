@@ -43,7 +43,6 @@ public class CalendarGridViewAdapter extends BaseAdapter {
     }
 
 
-
     public long getItemId(int position) {
         return position;
     }
@@ -61,24 +60,27 @@ public class CalendarGridViewAdapter extends BaseAdapter {
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
-        viewHolder.tv_day.setText(calendarDate.getSolar().solarDay+"");
+        viewHolder.tv_day.setText(calendarDate.getSolar().solarDay + "");
 
         String str;
 
-        if(!TextUtils.isEmpty(calendarDate.getSolar().solar24Term)){
-            str =  calendarDate.getSolar().solar24Term;
-        }else if(!TextUtils.isEmpty(calendarDate.getSolar().solarFestivalName)){
+        if (!TextUtils.isEmpty(calendarDate.getSolar().solar24Term)) {
+            str = calendarDate.getSolar().solar24Term;
+        } else if (!TextUtils.isEmpty(calendarDate.getSolar().solarFestivalName)) {
             str = calendarDate.getSolar().solarFestivalName;
-        }else{
+        } else {
             str = calendarDate.getLunar().getChinaDayString(mListData.get(position).getLunar().lunarDay);
         }
         viewHolder.tv_lunar_day.setText(str);
-        if(mListData.get(position).isInThisMonth()){
-            viewHolder.tv_day.setTextColor(Color.parseColor("#000000"));
-        }else{
+        if (mListData.get(position).isInThisMonth()) {
+            if (position % 7 == 0) {
+                viewHolder.tv_day.setTextColor(Color.RED);
+            } else {
+                viewHolder.tv_day.setTextColor(Color.BLACK);
+            }
+        } else {
             viewHolder.tv_day.setTextColor(Color.parseColor("#D7D7D7"));
             viewHolder.tv_lunar_day.setTextColor(Color.parseColor("#D7D7D7"));
-
         }
         return convertView;
     }
@@ -87,13 +89,13 @@ public class CalendarGridViewAdapter extends BaseAdapter {
     public static class ViewHolder {
         private TextView tv_day;
         private TextView tv_lunar_day;
+
         public ViewHolder(View itemView) {
             tv_day = (TextView) itemView.findViewById(R.id.tv_day);
             tv_lunar_day = (TextView) itemView.findViewById(R.id.tv_lunar_day);
         }
 
     }
-
 
 
 }
