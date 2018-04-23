@@ -117,6 +117,7 @@ public class CalendarViewFragment extends Fragment {
                         //单选
                         if (calendarDateList.get(position).isInThisMonth()) {
                             addSelectedDate(calendarDate);
+                            calendarDateList.get(position).setIsSelect(true);
                             onDateClickListener.onDateClick(calendarDate);
                         } else {
                             mGridView.setItemChecked(position, false);
@@ -127,9 +128,11 @@ public class CalendarViewFragment extends Fragment {
                             // mGridView.getCheckedItemIds()
                             if (!mGridView.isItemChecked(position)) {
                                 removeSelectedDate(calendarDate);
+                                calendarDateList.get(position).setIsSelect(false);
                                 onDateCancelListener.onDateCancel(calendarDate);
                             } else {
                                 addSelectedDate(calendarDate);
+                                calendarDateList.get(position).setIsSelect(true);
                                 onDateClickListener.onDateClick(calendarDate);
                             }
 
@@ -149,12 +152,6 @@ public class CalendarViewFragment extends Fragment {
                     for (int i = 0; i < count; i++) {
                         if (mListData.get(i).isSelect()) {
                             mGridView.setItemChecked(i, true);
-                        } else if (mListData.get(i).getSolar().solarDay == DateUtils.getDay()
-                                && mListData.get(i).getSolar().solarMonth == DateUtils.getMonth()
-                                && mListData.get(i).getSolar().solarYear == DateUtils.getYear()) {
-                            if (null != mGridView.getChildAt(i) && mListData.get(i).isInThisMonth()) {
-                                mGridView.setItemChecked(i, true);
-                            }
                         }
                     }
 
