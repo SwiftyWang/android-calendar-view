@@ -14,8 +14,8 @@ import com.joybar.librarycalendar.R;
 import com.joybar.librarycalendar.adapter.CalendarGridViewAdapter;
 import com.joybar.librarycalendar.controller.CalendarDateController;
 import com.joybar.librarycalendar.data.CalendarDate;
-import com.joybar.librarycalendar.utils.DateUtils;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
@@ -28,6 +28,8 @@ public class CalendarViewFragment extends Fragment {
     private static final String YEAR = "year";
     private static final String MONTH = "month";
     private static final String CHOICE_MODE_SINGLE = "choice_mode_single";
+    private static final String ARG_IS_SATURDAY_HOLIDAY = "ARG_IS_SATURDAY_HOLIDAY";
+    CalendarGridViewAdapter calendarGridViewAdapter;
     private boolean isChoiceModelSingle;
     private View mProgress;
     private int mYear;
@@ -37,25 +39,43 @@ public class CalendarViewFragment extends Fragment {
     private OnDateCancelListener onDateCancelListener;
     private HashSet<String> selectedDates;
     private ProcessTask mProcessTask;
+    private boolean isSaturdayHoliday;
+    private List<CalendarDate> mCalendarDateList = new ArrayList<>();
+    private final ProcessTask.DateLoadListener mDateLoadListener = new ProcessTask.DateLoadListener() {
+
+        @Override
+        public void onDateLoaded(final List<CalendarDate> calendarDateList) {
+            mProgress.setVisibility(View.GONE);
+            mCalendarDateList = calendarDateList;
+            updateList();
+            mGridView.post(new Runnable() {
+                @Override
+                public void run() {
+                    //需要默认选中当天
+                    List<CalendarDate> mListData = ((CalendarGridViewAdapter) mGridView.getAdapter()).getListData();
+                    int count = mListData.size();
+                    for (int i = 0; i < count; i++) {
+                        if (mListData.get(i).isSelect()) {
+                            mGridView.setItemChecked(i, true);
+                        }
+                    }
+
+                }
+            });
+        }
+    };
 
     public CalendarViewFragment() {
     }
 
-    public static CalendarViewFragment newInstance(int year, int month) {
-        CalendarViewFragment fragment = new CalendarViewFragment();
-        Bundle args = new Bundle();
-        args.putInt(YEAR, year);
-        args.putInt(MONTH, month);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    public static CalendarViewFragment newInstance(int year, int month, boolean isChoiceModelSingle, HashSet<String> selectedDates) {
+    //todo change to builder pattern
+    public static CalendarViewFragment newInstance(int year, int month, boolean isChoiceModelSingle, HashSet<String> selectedDates, boolean mIsSaturdayHoliday) {
         CalendarViewFragment fragment = new CalendarViewFragment();
         Bundle args = new Bundle();
         args.putInt(YEAR, year);
         args.putInt(MONTH, month);
         args.putBoolean(CHOICE_MODE_SINGLE, isChoiceModelSingle);
+        args.putBoolean(ARG_IS_SATURDAY_HOLIDAY, mIsSaturdayHoliday);
         args.putSerializable(CalendarViewPagerFragment.ARG_SELECTED_DATE, selectedDates);
         fragment.setArguments(args);
         return fragment;
@@ -82,6 +102,7 @@ public class CalendarViewFragment extends Fragment {
             mYear = getArguments().getInt(YEAR);
             mMonth = getArguments().getInt(MONTH);
             isChoiceModelSingle = getArguments().getBoolean(CHOICE_MODE_SINGLE, false);
+            isSaturdayHoliday = getArguments().getBoolean(ARG_IS_SATURDAY_HOLIDAY, false);
             selectedDates = (HashSet<String>) getArguments().getSerializable(CalendarViewPagerFragment.ARG_SELECTED_DATE);
         }
     }
@@ -95,70 +116,50 @@ public class CalendarViewFragment extends Fragment {
         mProcessTask = new ProcessTask(mYear, mMonth, selectedDates);
         mProcessTask.setDateLoadListener(mDateLoadListener);
         mProcessTask.execute();
+
+        calendarGridViewAdapter = new CalendarGridViewAdapter(mCalendarDateList, isSaturdayHoliday);
+        mGridView.setAdapter(calendarGridViewAdapter);
+        if (isChoiceModelSingle) {
+            mGridView.setChoiceMode(GridView.CHOICE_MODE_SINGLE);
+        } else {
+            mGridView.setChoiceMode(GridView.CHOICE_MODE_MULTIPLE);
+        }
+        mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                CalendarDate calendarDate = ((CalendarGridViewAdapter) mGridView.getAdapter()).getListData().get(position);
+                if (isChoiceModelSingle) {
+                    //单选
+                    if (mCalendarDateList.get(position).isInThisMonth()) {
+                        addSelectedDate(calendarDate);
+                        mCalendarDateList.get(position).setIsSelect(true);
+                        onDateClickListener.onDateClick(calendarDate);
+                    } else {
+                        mGridView.setItemChecked(position, false);
+                    }
+                } else {
+                    //多选
+                    if (mCalendarDateList.get(position).isInThisMonth()) {
+                        // mGridView.getCheckedItemIds()
+                        if (!mGridView.isItemChecked(position)) {
+                            removeSelectedDate(calendarDate);
+                            mCalendarDateList.get(position).setIsSelect(false);
+                            onDateCancelListener.onDateCancel(calendarDate);
+                        } else {
+                            addSelectedDate(calendarDate);
+                            mCalendarDateList.get(position).setIsSelect(true);
+                            onDateClickListener.onDateClick(calendarDate);
+                        }
+
+                    } else {
+                        mGridView.setItemChecked(position, false);
+                    }
+
+                }
+            }
+        });
         return view;
     }
-
-    private final ProcessTask.DateLoadListener mDateLoadListener = new ProcessTask.DateLoadListener() {
-
-        @Override
-        public void onDateLoaded(final List<CalendarDate> calendarDateList) {
-            mProgress.setVisibility(View.GONE);
-            mGridView.setAdapter(new CalendarGridViewAdapter(calendarDateList));
-            if (isChoiceModelSingle) {
-                mGridView.setChoiceMode(GridView.CHOICE_MODE_SINGLE);
-            } else {
-                mGridView.setChoiceMode(GridView.CHOICE_MODE_MULTIPLE);
-            }
-            mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    CalendarDate calendarDate = ((CalendarGridViewAdapter) mGridView.getAdapter()).getListData().get(position);
-                    if (isChoiceModelSingle) {
-                        //单选
-                        if (calendarDateList.get(position).isInThisMonth()) {
-                            addSelectedDate(calendarDate);
-                            calendarDateList.get(position).setIsSelect(true);
-                            onDateClickListener.onDateClick(calendarDate);
-                        } else {
-                            mGridView.setItemChecked(position, false);
-                        }
-                    } else {
-                        //多选
-                        if (calendarDateList.get(position).isInThisMonth()) {
-                            // mGridView.getCheckedItemIds()
-                            if (!mGridView.isItemChecked(position)) {
-                                removeSelectedDate(calendarDate);
-                                calendarDateList.get(position).setIsSelect(false);
-                                onDateCancelListener.onDateCancel(calendarDate);
-                            } else {
-                                addSelectedDate(calendarDate);
-                                calendarDateList.get(position).setIsSelect(true);
-                                onDateClickListener.onDateClick(calendarDate);
-                            }
-
-                        } else {
-                            mGridView.setItemChecked(position, false);
-                        }
-
-                    }
-                }
-            });
-            mGridView.post(new Runnable() {
-                @Override
-                public void run() {
-                    //需要默认选中当天
-                    List<CalendarDate> mListData = ((CalendarGridViewAdapter) mGridView.getAdapter()).getListData();
-                    int count = mListData.size();
-                    for (int i = 0; i < count; i++) {
-                        if (mListData.get(i).isSelect()) {
-                            mGridView.setItemChecked(i, true);
-                        }
-                    }
-
-                }
-            });
-        }
-    };
 
     private void removeSelectedDate(CalendarDate calendarDate) {
         if (getParentFragment() instanceof CalendarViewPagerFragment) {
@@ -178,6 +179,12 @@ public class CalendarViewFragment extends Fragment {
         mProcessTask.setDateLoadListener(null);
     }
 
+    public void updateList() {
+        if (calendarGridViewAdapter != null) {
+            calendarGridViewAdapter.updateList(mCalendarDateList, isSaturdayHoliday);
+        }
+    }
+
     public interface OnDateClickListener {
         void onDateClick(CalendarDate calendarDate);
     }
@@ -190,16 +197,7 @@ public class CalendarViewFragment extends Fragment {
         final int mYear;
         final int mMonth;
         final HashSet<String> mSelectedDates;
-
-        public void setDateLoadListener(DateLoadListener dateLoadListener) {
-            mDateLoadListener = dateLoadListener;
-        }
-
         private DateLoadListener mDateLoadListener;
-
-        interface DateLoadListener {
-            void onDateLoaded(List<CalendarDate> calendarDateList);
-        }
 
         ProcessTask(int year, int month, HashSet<String> selectedDates) {
             mYear = year;
@@ -207,6 +205,9 @@ public class CalendarViewFragment extends Fragment {
             mSelectedDates = selectedDates;
         }
 
+        public void setDateLoadListener(DateLoadListener dateLoadListener) {
+            mDateLoadListener = dateLoadListener;
+        }
 
         @Override
         protected List<CalendarDate> doInBackground(Void[] objects) {
@@ -220,6 +221,10 @@ public class CalendarViewFragment extends Fragment {
             if (mDateLoadListener != null) {
                 mDateLoadListener.onDateLoaded(calendarDateList);
             }
+        }
+
+        interface DateLoadListener {
+            void onDateLoaded(List<CalendarDate> calendarDateList);
         }
     }
 }

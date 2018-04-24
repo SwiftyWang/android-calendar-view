@@ -18,13 +18,14 @@ import java.util.HashSet;
 public class CalendarViewPagerAdapter extends FragmentStatePagerAdapter {
 
     private static final String TAG = CalendarViewPagerAdapter.class.getSimpleName();
+    private boolean mIsSaturdayHoliday;
     private int number;
     private int NUM_ITEMS = 200;
     private int NUM_ITEMS_CURRENT = NUM_ITEMS / 2;
     private boolean isChoiceModelSingle;
     private HashSet<String> mSelectedDate;
 
-    public CalendarViewPagerAdapter(FragmentManager fm, boolean isChoiceModelSingle, int startYear, int endYear, @Nullable HashSet<String> selectedDate) {
+    public CalendarViewPagerAdapter(FragmentManager fm, boolean isChoiceModelSingle, int startYear, int endYear, @Nullable HashSet<String> selectedDate, boolean isSaturdayHoliday) {
         super(fm);
         this.isChoiceModelSingle = isChoiceModelSingle;
         int thisMonthPosition = DateUtils.getYear() * 12 + DateUtils.getMonth() - 1;
@@ -42,6 +43,7 @@ public class CalendarViewPagerAdapter extends FragmentStatePagerAdapter {
             number = thisMonthPosition - NUM_ITEMS_CURRENT;
         }
         mSelectedDate = selectedDate;
+        setIsSaturdayHoliday(isSaturdayHoliday);
     }
 
     public int getCurrentPosition() {
@@ -52,7 +54,7 @@ public class CalendarViewPagerAdapter extends FragmentStatePagerAdapter {
     public Fragment getItem(int position) {
         int year = getYearByPosition(position);
         int month = getMonthByPosition(position);
-        return CalendarViewFragment.newInstance(year, month, isChoiceModelSingle, parseCurrentMonthSelectedDate(year, month));
+        return CalendarViewFragment.newInstance(year, month, isChoiceModelSingle, parseCurrentMonthSelectedDate(year, month), mIsSaturdayHoliday);
     }
 
     public void setSelectedDate(HashSet<String> selectedDate) {
@@ -90,5 +92,9 @@ public class CalendarViewPagerAdapter extends FragmentStatePagerAdapter {
     public int getMonthByPosition(int position) {
         int month = (position + number) % 12 + 1;
         return month;
+    }
+
+    public void setIsSaturdayHoliday(boolean isSaturdayHoliday) {
+        mIsSaturdayHoliday = isSaturdayHoliday;
     }
 }

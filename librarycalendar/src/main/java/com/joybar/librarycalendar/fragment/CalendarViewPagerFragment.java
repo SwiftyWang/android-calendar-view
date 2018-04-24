@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 
 import com.joybar.librarycalendar.R;
 import com.joybar.librarycalendar.adapter.CalendarViewPagerAdapter;
+import com.joybar.librarycalendar.controller.CalendarDateController;
 import com.joybar.librarycalendar.data.CalendarDate;
 
 import java.util.HashSet;
@@ -25,6 +26,7 @@ public class CalendarViewPagerFragment extends Fragment {
     private static final String ARG_START_YEAR = "ARG_START_YEAR";
     private static final String ARG_END_YEAR = "ARG_END_YEAR";
     private static final String CHOICE_MODE_SINGLE = "choice_mode_single";
+    private static final String ARG_IS_SATURDAY_HOLIDAY = "ARG_IS_SATURDAY_HOLIDAY";
     private int endYear;
     private boolean isChoiceModelSingle;
     private CalendarViewPagerAdapter myAdapter;
@@ -32,17 +34,19 @@ public class CalendarViewPagerFragment extends Fragment {
     private int startYear;
     private ViewPager viewPager;
     private OnPageChangeListener onPageChangeListener;
+    private boolean isSaturdayHoliday;
 
     public CalendarViewPagerFragment() {
     }
 
-    public static CalendarViewPagerFragment newInstance(boolean isChoiceModelSingle, HashSet<String> selectedYearMonthDayList, int startYear, int endYear) {
+    public static CalendarViewPagerFragment newInstance(boolean isChoiceModelSingle, HashSet<String> selectedYearMonthDayList, int startYear, int endYear, boolean isSaturdayHoliday) {
         CalendarViewPagerFragment fragment = new CalendarViewPagerFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_SELECTED_DATE, selectedYearMonthDayList);
         args.putInt(ARG_START_YEAR, startYear);
         args.putInt(ARG_END_YEAR, endYear);
         args.putBoolean(CHOICE_MODE_SINGLE, isChoiceModelSingle);
+        args.putBoolean(ARG_IS_SATURDAY_HOLIDAY, isSaturdayHoliday);
         fragment.setArguments(args);
         return fragment;
     }
@@ -72,6 +76,7 @@ public class CalendarViewPagerFragment extends Fragment {
             startYear = getArguments().getInt(ARG_START_YEAR, 0);
             endYear = getArguments().getInt(ARG_END_YEAR, 0);
             selectedDate = (HashSet<String>) getArguments().getSerializable(ARG_SELECTED_DATE);
+            isSaturdayHoliday = getArguments().getBoolean(ARG_IS_SATURDAY_HOLIDAY);
             if (selectedDate == null) {
                 selectedDate = new HashSet<>();
             }
@@ -82,13 +87,13 @@ public class CalendarViewPagerFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_calendar_viewpager, container, false);
-        initViewPager(view);
+        viewPager = (ViewPager) view.findViewById(R.id.viewpager);
+        initViewPager();
         return view;
     }
 
-    private void initViewPager(View view) {
-        viewPager = (ViewPager) view.findViewById(R.id.viewpager);
-        myAdapter = new CalendarViewPagerAdapter(getChildFragmentManager(), isChoiceModelSingle, startYear, endYear, selectedDate);
+    private void initViewPager() {
+        myAdapter = new CalendarViewPagerAdapter(getChildFragmentManager(), isChoiceModelSingle, startYear, endYear, selectedDate, isSaturdayHoliday);
         viewPager.setAdapter(myAdapter);
         viewPager.setCurrentItem(myAdapter.getCurrentPosition());
         ViewPager.OnPageChangeListener pageChangeListener = new ViewPager.OnPageChangeListener() {
@@ -120,13 +125,15 @@ public class CalendarViewPagerFragment extends Fragment {
     }
 
     public void setSaturdayIsHoliday(boolean isHoliday) {
-        //todo implement
+        isSaturdayHoliday = isHoliday;
+        initViewPager();
     }
 
     public void removeAllSelectedDate() {
-        //todo implement
+        selectedDate = new HashSet<>();
+        CalendarDateController.cachedDate.evictAll();
+        initViewPager();
     }
-
 
     public interface OnPageChangeListener {
         void onPageChange(int year, int month);

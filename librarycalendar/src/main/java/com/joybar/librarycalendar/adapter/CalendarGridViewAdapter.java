@@ -13,7 +13,6 @@ import com.joybar.librarycalendar.R;
 import com.joybar.librarycalendar.data.CalendarDate;
 import com.joybar.librarycalendar.data.Lunar;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -22,11 +21,13 @@ import java.util.List;
  */
 public class CalendarGridViewAdapter extends BaseAdapter {
 
-    private List<CalendarDate> mListData = new ArrayList<>();
+    private boolean mIsSaturdayHoliday;
+    private List<CalendarDate> mListData;
 
 
-    public CalendarGridViewAdapter(List<CalendarDate> mListData) {
+    public CalendarGridViewAdapter(List<CalendarDate> mListData, boolean isSaturdayHoliday) {
         this.mListData = mListData;
+        mIsSaturdayHoliday = isSaturdayHoliday;
     }
 
     public List<CalendarDate> getListData() {
@@ -79,7 +80,7 @@ public class CalendarGridViewAdapter extends BaseAdapter {
         }
         viewHolder.tv_lunar_day.setText(str);
         if (calendarDate.isInThisMonth()) {
-            if (position % 7 == 0 || isFestival) {
+            if (position % 7 == 0 || isFestival || (mIsSaturdayHoliday && position % 7 == 6)) {
                 viewHolder.tv_day.setTextColor(Color.RED);
             } else {
                 viewHolder.tv_day.setTextColor(Color.BLACK);
@@ -91,6 +92,11 @@ public class CalendarGridViewAdapter extends BaseAdapter {
         return convertView;
     }
 
+    public void updateList(List<CalendarDate> calendarDates, boolean isSaturdayHoliday) {
+        mIsSaturdayHoliday = isSaturdayHoliday;
+        mListData = calendarDates;
+        notifyDataSetChanged();
+    }
 
     public static class ViewHolder {
         private TextView tv_day;
@@ -102,7 +108,5 @@ public class CalendarGridViewAdapter extends BaseAdapter {
         }
 
     }
-
-
 }
 
