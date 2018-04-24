@@ -123,6 +123,10 @@ public class CalendarViewPagerFragment extends Fragment {
         //todo implement
     }
 
+    public void removeAllSelectedDate() {
+        //todo implement
+    }
+
 
     public interface OnPageChangeListener {
         void onPageChange(int year, int month);
