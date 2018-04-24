@@ -119,6 +119,10 @@ public class CalendarViewPagerFragment extends Fragment {
         }
     }
 
+    public void setSaturdayIsHoliday(boolean isHoliday) {
+        //todo implement
+    }
+
 
     public interface OnPageChangeListener {
         void onPageChange(int year, int month);
