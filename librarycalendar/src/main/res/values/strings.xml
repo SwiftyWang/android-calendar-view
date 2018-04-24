@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">LibraryCalendar</string>
     <string name="mon">Mon</string>
     <string name="tue">Tue</string>
     <string name="wed">Wed</string>
