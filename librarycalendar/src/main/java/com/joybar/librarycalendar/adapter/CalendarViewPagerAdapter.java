@@ -46,7 +46,7 @@ public class CalendarViewPagerAdapter extends FragmentStatePagerAdapter {
         setIsSaturdayHoliday(isSaturdayHoliday);
     }
 
-    public int getCurrentPosition() {
+    public int getDefaultPosition() {
         return NUM_ITEMS_CURRENT;
     }
 

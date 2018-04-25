@@ -95,7 +95,7 @@ public class CalendarViewPagerFragment extends Fragment {
     private void initViewPager() {
         myAdapter = new CalendarViewPagerAdapter(getChildFragmentManager(), isChoiceModelSingle, startYear, endYear, selectedDate, isSaturdayHoliday);
         viewPager.setAdapter(myAdapter);
-        viewPager.setCurrentItem(myAdapter.getCurrentPosition());
+        viewPager.setCurrentItem(myAdapter.getDefaultPosition());
         ViewPager.OnPageChangeListener pageChangeListener = new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
@@ -114,7 +114,7 @@ public class CalendarViewPagerFragment extends Fragment {
             }
         };
         viewPager.addOnPageChangeListener(pageChangeListener);
-        pageChangeListener.onPageSelected(myAdapter.getCurrentPosition());
+        pageChangeListener.onPageSelected(myAdapter.getDefaultPosition());
     }
 
     public void removeSelectedDate(CalendarDate calendarDate) {
@@ -126,13 +126,20 @@ public class CalendarViewPagerFragment extends Fragment {
 
     public void setSaturdayIsHoliday(boolean isHoliday) {
         isSaturdayHoliday = isHoliday;
-        initViewPager();
+        updateViewPager();
+    }
+
+    private void updateViewPager() {
+        int currentItem = viewPager.getCurrentItem();
+        myAdapter = new CalendarViewPagerAdapter(getChildFragmentManager(), isChoiceModelSingle, startYear, endYear, selectedDate, isSaturdayHoliday);
+        viewPager.setAdapter(myAdapter);
+        viewPager.setCurrentItem(currentItem);
     }
 
     public void removeAllSelectedDate() {
         selectedDate = new HashSet<>();
         CalendarDateController.cachedDate.evictAll();
-        initViewPager();
+        updateViewPager();
     }
 
     public interface OnPageChangeListener {
