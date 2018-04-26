@@ -1,23 +1,35 @@
 package com.joybar.librarycalendar.utils;
 
 
+import android.support.annotation.NonNull;
+
+import com.joybar.librarycalendar.data.CalendarDate;
 import com.joybar.librarycalendar.data.Lunar;
 import com.joybar.librarycalendar.data.Solar;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class LunarSolarConverter {
 
-	private static int baseYear = 1901;
+    private final static int[] solarTermInfo = {
+            0, 21208, 42467, 63836, 85337, 107014, 128867, 150921,
+            173149, 195551, 218072, 240693, 263343, 285989, 308563, 331033,
+            353350, 375494, 397447, 419210, 440795, 462224, 483532, 504758
+    };
     /*
      * |----4位闰月|-------------13位1为30天，0为29天|
-	 */
-
+     */
+    private final static Pattern sFreg = Pattern.compile("^(\\d{2})(\\d{2})([\\s\\*])(.+)$");
+    private static int baseYear = 1901;
     private static int[] lunar_month_days = {1887, 0x1694, 0x16aa, 0x4ad5,
             0xab6, 0xc4b7, 0x4ae, 0xa56, 0xb52a, 0x1d2a, 0xd54, 0x75aa, 0x156a,
             0x1096d, 0x95c, 0x14ae, 0xaa4d, 0x1a4c, 0x1b2a, 0x8d55, 0xad4,
@@ -47,7 +59,6 @@ public class LunarSolarConverter {
             0xcd6a, 0xada, 0x95c, 0x949d, 0x149a, 0x1a2a, 0x5b25, 0x1aa4,
             0xfb52, 0x16b4, 0xaba, 0xa95b, 0x936, 0x1496, 0x9a4b, 0x154a,
             0x136a5, 0xda4, 0x15ac};
-
     private static int[] solar_1_1 = {1887, 0xec04c, 0xec23f, 0xec435, 0xec649,
             0xec83e, 0xeca51, 0xecc46, 0xece3a, 0xed04d, 0xed242, 0xed436,
             0xed64a, 0xed83f, 0xeda53, 0xedc48, 0xede3d, 0xee050, 0xee244,
@@ -82,7 +93,6 @@ public class LunarSolarConverter {
             0x105e45, 0x106039, 0x10624c, 0x106441, 0x106635, 0x106849,
             0x106a3d, 0x106c51, 0x106e47, 0x10703c, 0x10724f, 0x107444,
             0x107638, 0x10784c, 0x107a3f, 0x107c53, 0x107e48};
-
     private static char[][] sectionalTermYear = {
             {13, 49, 85, 117, 149, 185, 201, 250, 250},
             {13, 45, 81, 117, 149, 185, 201, 250, 250},
@@ -96,72 +106,69 @@ public class LunarSolarConverter {
             {16, 44, 76, 108, 144, 172, 200, 201, 250},
             {28, 60, 92, 124, 160, 192, 200, 201, 250},
             {17, 53, 85, 124, 156, 188, 200, 201, 250}};
-
-	private static char[][] sectionalTermMap = {
-			{7, 6, 6, 6, 6, 6, 6, 6, 6, 5, 6, 6, 6, 5, 5, 6, 6, 5, 5, 5, 5, 5,
-					5, 5, 5, 4, 5, 5},
-			{5, 4, 5, 5, 5, 4, 4, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4, 3, 4, 4, 4, 3,
-					3, 4, 4, 3, 3, 3},
-			{6, 6, 6, 7, 6, 6, 6, 6, 5, 6, 6, 6, 5, 5, 6, 6, 5, 5, 5, 6, 5, 5,
-					5, 5, 4, 5, 5, 5, 5},
-			{5, 5, 6, 6, 5, 5, 5, 6, 5, 5, 5, 5, 4, 5, 5, 5, 4, 4, 5, 5, 4, 4,
-					4, 5, 4, 4, 4, 4, 5},
-			{6, 6, 6, 7, 6, 6, 6, 6, 5, 6, 6, 6, 5, 5, 6, 6, 5, 5, 5, 6, 5, 5,
-					5, 5, 4, 5, 5, 5, 5},
-			{6, 6, 7, 7, 6, 6, 6, 7, 6, 6, 6, 6, 5, 6, 6, 6, 5, 5, 6, 6, 5, 5,
-					5, 6, 5, 5, 5, 5, 4, 5, 5, 5, 5},
-			{7, 8, 8, 8, 7, 7, 8, 8, 7, 7, 7, 8, 7, 7, 7, 7, 6, 7, 7, 7, 6, 6,
-					7, 7, 6, 6, 6, 7, 7},
-			{8, 8, 8, 9, 8, 8, 8, 8, 7, 8, 8, 8, 7, 7, 8, 8, 7, 7, 7, 8, 7, 7,
-					7, 7, 6, 7, 7, 7, 6, 6, 7, 7, 7},
-			{8, 8, 8, 9, 8, 8, 8, 8, 7, 8, 8, 8, 7, 7, 8, 8, 7, 7, 7, 8, 7, 7,
-					7, 7, 6, 7, 7, 7, 7},
-			{9, 9, 9, 9, 8, 9, 9, 9, 8, 8, 9, 9, 8, 8, 8, 9, 8, 8, 8, 8, 7, 8,
-					8, 8, 7, 7, 8, 8, 8},
-			{8, 8, 8, 8, 7, 8, 8, 8, 7, 7, 8, 8, 7, 7, 7, 8, 7, 7, 7, 7, 6, 7,
-					7, 7, 6, 6, 7, 7, 7},
-			{7, 8, 8, 8, 7, 7, 8, 8, 7, 7, 7, 8, 7, 7, 7, 7, 6, 7, 7, 7, 6, 6,
-					7, 7, 6, 6, 6, 7, 7}};
-
-	private static char[][] principleTermYear = {
-			{13, 45, 81, 113, 149, 185, 201},
-			{21, 57, 93, 125, 161, 193, 201},
-			{21, 56, 88, 120, 152, 188, 200, 201},
-			{21, 49, 81, 116, 144, 176, 200, 201},
-			{17, 49, 77, 112, 140, 168, 200, 201},
-			{28, 60, 88, 116, 148, 180, 200, 201},
-			{25, 53, 84, 112, 144, 172, 200, 201},
-			{29, 57, 89, 120, 148, 180, 200, 201},
-			{17, 45, 73, 108, 140, 168, 200, 201},
-			{28, 60, 92, 124, 160, 192, 200, 201},
-			{16, 44, 80, 112, 148, 180, 200, 201},
-			{17, 53, 88, 120, 156, 188, 200, 201}};
-
-	private static char[][] principleTermMap = {
-			{21, 21, 21, 21, 21, 20, 21, 21, 21, 20, 20, 21, 21, 20, 20, 20,
-					20, 20, 20, 20, 20, 19, 20, 20, 20, 19, 19, 20},
-			{20, 19, 19, 20, 20, 19, 19, 19, 19, 19, 19, 19, 19, 18, 19, 19,
-					19, 18, 18, 19, 19, 18, 18, 18, 18, 18, 18, 18},
-			{21, 21, 21, 22, 21, 21, 21, 21, 20, 21, 21, 21, 20, 20, 21, 21,
-					20, 20, 20, 21, 20, 20, 20, 20, 19, 20, 20, 20, 20},
-			{20, 21, 21, 21, 20, 20, 21, 21, 20, 20, 20, 21, 20, 20, 20, 20,
-					19, 20, 20, 20, 19, 19, 20, 20, 19, 19, 19, 20, 20},
-			{21, 22, 22, 22, 21, 21, 22, 22, 21, 21, 21, 22, 21, 21, 21, 21,
-					20, 21, 21, 21, 20, 20, 21, 21, 20, 20, 20, 21, 21},
-			{22, 22, 22, 22, 21, 22, 22, 22, 21, 21, 22, 22, 21, 21, 21, 22,
-					21, 21, 21, 21, 20, 21, 21, 21, 20, 20, 21, 21, 21},
-			{23, 23, 24, 24, 23, 23, 23, 24, 23, 23, 23, 23, 22, 23, 23, 23,
-					22, 22, 23, 23, 22, 22, 22, 23, 22, 22, 22, 22, 23},
-			{23, 24, 24, 24, 23, 23, 24, 24, 23, 23, 23, 24, 23, 23, 23, 23,
-					22, 23, 23, 23, 22, 22, 23, 23, 22, 22, 22, 23, 23},
-			{23, 24, 24, 24, 23, 23, 24, 24, 23, 23, 23, 24, 23, 23, 23, 23,
-					22, 23, 23, 23, 22, 22, 23, 23, 22, 22, 22, 23, 23},
-			{24, 24, 24, 24, 23, 24, 24, 24, 23, 23, 24, 24, 23, 23, 23, 24,
-					23, 23, 23, 23, 22, 23, 23, 23, 22, 22, 23, 23, 23},
-			{23, 23, 23, 23, 22, 23, 23, 23, 22, 22, 23, 23, 22, 22, 22, 23,
-					22, 22, 22, 22, 21, 22, 22, 22, 21, 21, 22, 22, 22},
-			{22, 22, 23, 23, 22, 22, 22, 23, 22, 22, 22, 22, 21, 22, 22, 22,
-					21, 21, 22, 22, 21, 21, 21, 22, 21, 21, 21, 21, 22}};
+    private static char[][] sectionalTermMap = {
+            {7, 6, 6, 6, 6, 6, 6, 6, 6, 5, 6, 6, 6, 5, 5, 6, 6, 5, 5, 5, 5, 5,
+                    5, 5, 5, 4, 5, 5},
+            {5, 4, 5, 5, 5, 4, 4, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4, 3, 4, 4, 4, 3,
+                    3, 4, 4, 3, 3, 3},
+            {6, 6, 6, 7, 6, 6, 6, 6, 5, 6, 6, 6, 5, 5, 6, 6, 5, 5, 5, 6, 5, 5,
+                    5, 5, 4, 5, 5, 5, 5},
+            {5, 5, 6, 6, 5, 5, 5, 6, 5, 5, 5, 5, 4, 5, 5, 5, 4, 4, 5, 5, 4, 4,
+                    4, 5, 4, 4, 4, 4, 5},
+            {6, 6, 6, 7, 6, 6, 6, 6, 5, 6, 6, 6, 5, 5, 6, 6, 5, 5, 5, 6, 5, 5,
+                    5, 5, 4, 5, 5, 5, 5},
+            {6, 6, 7, 7, 6, 6, 6, 7, 6, 6, 6, 6, 5, 6, 6, 6, 5, 5, 6, 6, 5, 5,
+                    5, 6, 5, 5, 5, 5, 4, 5, 5, 5, 5},
+            {7, 8, 8, 8, 7, 7, 8, 8, 7, 7, 7, 8, 7, 7, 7, 7, 6, 7, 7, 7, 6, 6,
+                    7, 7, 6, 6, 6, 7, 7},
+            {8, 8, 8, 9, 8, 8, 8, 8, 7, 8, 8, 8, 7, 7, 8, 8, 7, 7, 7, 8, 7, 7,
+                    7, 7, 6, 7, 7, 7, 6, 6, 7, 7, 7},
+            {8, 8, 8, 9, 8, 8, 8, 8, 7, 8, 8, 8, 7, 7, 8, 8, 7, 7, 7, 8, 7, 7,
+                    7, 7, 6, 7, 7, 7, 7},
+            {9, 9, 9, 9, 8, 9, 9, 9, 8, 8, 9, 9, 8, 8, 8, 9, 8, 8, 8, 8, 7, 8,
+                    8, 8, 7, 7, 8, 8, 8},
+            {8, 8, 8, 8, 7, 8, 8, 8, 7, 7, 8, 8, 7, 7, 7, 8, 7, 7, 7, 7, 6, 7,
+                    7, 7, 6, 6, 7, 7, 7},
+            {7, 8, 8, 8, 7, 7, 8, 8, 7, 7, 7, 8, 7, 7, 7, 7, 6, 7, 7, 7, 6, 6,
+                    7, 7, 6, 6, 6, 7, 7}};
+    private static char[][] principleTermYear = {
+            {13, 45, 81, 113, 149, 185, 201},
+            {21, 57, 93, 125, 161, 193, 201},
+            {21, 56, 88, 120, 152, 188, 200, 201},
+            {21, 49, 81, 116, 144, 176, 200, 201},
+            {17, 49, 77, 112, 140, 168, 200, 201},
+            {28, 60, 88, 116, 148, 180, 200, 201},
+            {25, 53, 84, 112, 144, 172, 200, 201},
+            {29, 57, 89, 120, 148, 180, 200, 201},
+            {17, 45, 73, 108, 140, 168, 200, 201},
+            {28, 60, 92, 124, 160, 192, 200, 201},
+            {16, 44, 80, 112, 148, 180, 200, 201},
+            {17, 53, 88, 120, 156, 188, 200, 201}};
+    private static char[][] principleTermMap = {
+            {21, 21, 21, 21, 21, 20, 21, 21, 21, 20, 20, 21, 21, 20, 20, 20,
+                    20, 20, 20, 20, 20, 19, 20, 20, 20, 19, 19, 20},
+            {20, 19, 19, 20, 20, 19, 19, 19, 19, 19, 19, 19, 19, 18, 19, 19,
+                    19, 18, 18, 19, 19, 18, 18, 18, 18, 18, 18, 18},
+            {21, 21, 21, 22, 21, 21, 21, 21, 20, 21, 21, 21, 20, 20, 21, 21,
+                    20, 20, 20, 21, 20, 20, 20, 20, 19, 20, 20, 20, 20},
+            {20, 21, 21, 21, 20, 20, 21, 21, 20, 20, 20, 21, 20, 20, 20, 20,
+                    19, 20, 20, 20, 19, 19, 20, 20, 19, 19, 19, 20, 20},
+            {21, 22, 22, 22, 21, 21, 22, 22, 21, 21, 21, 22, 21, 21, 21, 21,
+                    20, 21, 21, 21, 20, 20, 21, 21, 20, 20, 20, 21, 21},
+            {22, 22, 22, 22, 21, 22, 22, 22, 21, 21, 22, 22, 21, 21, 21, 22,
+                    21, 21, 21, 21, 20, 21, 21, 21, 20, 20, 21, 21, 21},
+            {23, 23, 24, 24, 23, 23, 23, 24, 23, 23, 23, 23, 22, 23, 23, 23,
+                    22, 22, 23, 23, 22, 22, 22, 23, 22, 22, 22, 22, 23},
+            {23, 24, 24, 24, 23, 23, 24, 24, 23, 23, 23, 24, 23, 23, 23, 23,
+                    22, 23, 23, 23, 22, 22, 23, 23, 22, 22, 22, 23, 23},
+            {23, 24, 24, 24, 23, 23, 24, 24, 23, 23, 23, 24, 23, 23, 23, 23,
+                    22, 23, 23, 23, 22, 22, 23, 23, 22, 22, 22, 23, 23},
+            {24, 24, 24, 24, 23, 24, 24, 24, 23, 23, 24, 24, 23, 23, 23, 24,
+                    23, 23, 23, 23, 22, 23, 23, 23, 22, 22, 23, 23, 23},
+            {23, 23, 23, 23, 22, 23, 23, 23, 22, 22, 23, 23, 22, 22, 22, 23,
+                    22, 22, 22, 22, 21, 22, 22, 22, 21, 21, 22, 22, 22},
+            {22, 22, 23, 23, 22, 22, 22, 23, 22, 22, 22, 22, 21, 22, 22, 22,
+                    21, 21, 22, 22, 21, 21, 21, 22, 21, 21, 21, 21, 22}};
     /**
      * 国历节日 *表示放假日
      */
@@ -174,15 +181,6 @@ public class LunarSolarConverter {
             "1024 联合国日", "1111 光棍节",
             "1225 圣诞节",
     };
-
-    public static void setSolarFtv(String[] sFtv) {
-        LunarSolarConverter.sFtv = sFtv;
-    }
-
-    public static void setLunarFtv(String[] lFtv) {
-        LunarSolarConverter.lFtv = lFtv;
-    }
-
     /**
      * 农历节日 *表示放假日
      */
@@ -200,20 +198,27 @@ public class LunarSolarConverter {
             "1208 释迦如来成道日，腊八节", "1224 小年",
             "1229 华严菩萨诞", "0100*除夕"
     };
-
-
-	private static String[] principleTermNames = {"大寒", "雨水", "春分", "穀雨",
+    private static String[] principleTermNames = {"大寒", "雨水", "春分", "穀雨",
             "小滿", "夏至", "大暑", "處暑", "秋分", "霜降", "小雪", "冬至"};
-
-	private static String[] sectionalTermNames = {"小寒", "立春", "驚蟄", "清明",
+    private static String[] sectionalTermNames = {"小寒", "立春", "驚蟄", "清明",
             "立夏", "芒種", "小暑", "立秋", "白露", "寒露", "立冬", "大雪"};
-    private final static int[] solarTermInfo = {
-            0, 21208, 42467, 63836, 85337, 107014, 128867, 150921,
-            173149, 195551, 218072, 240693, 263343, 285989, 308563, 331033,
-            353350, 375494, 397447, 419210, 440795, 462224, 483532, 504758
-    };
-    private final static Pattern sFreg = Pattern.compile("^(\\d{2})(\\d{2})([\\s\\*])(.+)$");
     private static GregorianCalendar utcCal = null;
+
+    public static void setSolarFtv(String[] sFtv) {
+        LunarSolarConverter.sFtv = sFtv;
+    }
+
+    public static void setLunarFtv(String[] lFtv) {
+        LunarSolarConverter.lFtv = lFtv;
+    }
+
+    public static String[] getsFtv() {
+        return sFtv;
+    }
+
+    public static String[] getlFtv() {
+        return lFtv;
+    }
 
     public static int toInt(String str) {
         try {
@@ -223,21 +228,20 @@ public class LunarSolarConverter {
         }
     }
 
-	/**
-	 * 返回公历日期的节气字符串
-	 *
-	 * @return 二十四节气字符串, 若不是节气日, 返回空串(例:冬至)
-	 */
-	public static String getTermStr(Solar solar) {
-		String termString = "";
-		if (solar.solarDay == sectionalTerm(solar.solarYear, solar.solarMonth)) {
-			termString = sectionalTermNames[solar.solarMonth - 1];
-		} else if (solar.solarDay == principleTerm(solar.solarYear, solar.solarMonth)) {
-			termString = principleTermNames[solar.solarMonth - 1];
-		}
-		return termString;
-	}
-
+    /**
+     * 返回公历日期的节气字符串
+     *
+     * @return 二十四节气字符串, 若不是节气日, 返回空串(例:冬至)
+     */
+    public static String getTermStr(Solar solar) {
+        String termString = "";
+        if (solar.solarDay == sectionalTerm(solar.solarYear, solar.solarMonth)) {
+            termString = sectionalTermNames[solar.solarMonth - 1];
+        } else if (solar.solarDay == principleTerm(solar.solarYear, solar.solarMonth)) {
+            termString = principleTermNames[solar.solarMonth - 1];
+        }
+        return termString;
+    }
 
 
     public static int sectionalTerm(int y, int m) {
@@ -366,7 +370,6 @@ public class LunarSolarConverter {
     }
 
     /**
-     *
      * @param lunarYear
      * @return String of : 甲子年
      */
@@ -471,4 +474,43 @@ public class LunarSolarConverter {
 
     }
 
+    @NonNull
+    public static List<CalendarDate> generateFestivalList(int year) {
+        List<CalendarDate> calendarDates = new ArrayList<>();
+        for (String s : sFtv) {
+            Matcher m = LunarSolarConverter.sFreg.matcher(s);
+            if (m.find()) {
+                Solar solar = new Solar();
+                solar.solarYear = year;
+                solar.solarMonth = LunarSolarConverter.toInt(m.group(1));
+                solar.solarDay = LunarSolarConverter.toInt(m.group(2));
+                solar.isSFestival = true;
+                solar.solarFestivalName = m.group(4);
+                CalendarDate calendarDate = new CalendarDate(false, false, solar, SolarToLunar(solar));
+                calendarDates.add(calendarDate);
+            }
+        }
+        for (String s : lFtv) {
+            Matcher m = LunarSolarConverter.sFreg.matcher(s);
+            if (m.find()) {
+                Lunar lunar = new Lunar();
+                lunar.lunarYear = year;
+                lunar.lunarMonth = LunarSolarConverter.toInt(m.group(1));
+                lunar.lunarDay = LunarSolarConverter.toInt(m.group(2));
+                lunar.isLFestival = true;
+                lunar.lunarFestivalName = m.group(4);
+                CalendarDate calendarDate = new CalendarDate(false, false, LunarToSolar(lunar), lunar);
+                calendarDates.add(calendarDate);
+            }
+        }
+        Collections.sort(calendarDates, new Comparator<CalendarDate>() {
+            @Override
+            public int compare(CalendarDate o1, CalendarDate o2) {
+                int i1 = Integer.valueOf(o1.getSolarDateString().replace("/", "").trim());
+                int i2 = Integer.valueOf(o2.getSolarDateString().replace("/", "").trim());
+                return i1 - i2;
+            }
+        });
+        return calendarDates;
+    }
 }

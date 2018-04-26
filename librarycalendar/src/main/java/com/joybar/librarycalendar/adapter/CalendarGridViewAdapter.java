@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.joybar.librarycalendar.R;
 import com.joybar.librarycalendar.data.CalendarDate;
 import com.joybar.librarycalendar.data.Lunar;
+import com.joybar.librarycalendar.utils.DateUtils;
 
 import java.util.List;
 
@@ -88,6 +89,12 @@ public class CalendarGridViewAdapter extends BaseAdapter {
         } else {
             viewHolder.tv_day.setTextColor(Color.LTGRAY);
             viewHolder.tv_lunar_day.setTextColor(Color.LTGRAY);
+        }
+        if (DateUtils.isToday(calendarDate)) {
+            viewHolder.tv_day.setBackgroundResource(R.drawable.red_circle);
+            viewHolder.tv_day.setTextColor(Color.WHITE);
+        } else {
+            viewHolder.tv_day.setBackgroundColor(0);
         }
         return convertView;
     }

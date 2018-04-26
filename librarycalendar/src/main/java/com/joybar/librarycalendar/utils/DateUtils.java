@@ -1,6 +1,8 @@
 package com.joybar.librarycalendar.utils;
 
 
+import com.joybar.librarycalendar.data.CalendarDate;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -105,8 +107,8 @@ public class DateUtils {
     /**
      * 日期格式字符串转换成时间戳
      *
-     * @param date_str   字符串日期 “2016-02-26 12:00:00”
-     * @param format 如：yyyy-MM-dd HH:mm:ss
+     * @param date_str 字符串日期 “2016-02-26 12:00:00”
+     * @param format   如：yyyy-MM-dd HH:mm:ss
      * @return
      */
     public static long date2TimeStamp(String date_str, String format) {
@@ -222,10 +224,17 @@ public class DateUtils {
 
         try {
             int month = Integer.valueOf(numberStr);
-            return months[month-1];
+            return months[month - 1];
         } catch (Exception e) {
             e.printStackTrace();
         }
         return "";
+    }
+
+    public static boolean isToday(CalendarDate calendarDate) {
+        int solarYear = calendarDate.getSolar().solarYear;
+        int solarMonth = calendarDate.getSolar().solarMonth;
+        int solarDay = calendarDate.getSolar().solarDay;
+        return getYear() == solarYear && getMonth() == solarMonth && getDay() == solarDay;
     }
 }
