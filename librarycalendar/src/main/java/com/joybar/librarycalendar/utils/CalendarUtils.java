@@ -154,11 +154,13 @@ public class CalendarUtils {
         }
         //填补下月的数据
         for (int i = 1; i < (7 - (begin - 1 + count) % 7); i++) {
+            int tmpYear = year;
             int nextMonth = month + 1;
             if (nextMonth == 13) {
                 nextMonth = 1;
+                tmpYear = year + 1;
             }
-            CalendarSimpleDate calendarDate = new CalendarSimpleDate(year, nextMonth, i);
+            CalendarSimpleDate calendarDate = new CalendarSimpleDate(tmpYear, nextMonth, i);
             list.add(calendarDate);
         }
         return list;
