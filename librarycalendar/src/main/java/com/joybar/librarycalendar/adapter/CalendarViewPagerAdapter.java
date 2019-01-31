@@ -32,7 +32,7 @@ public class CalendarViewPagerAdapter extends FragmentStatePagerAdapter {
         if (startYear > 1970 && endYear >= startYear) {
             NUM_ITEMS = (endYear - startYear + 1) * 12;
             int offset = thisMonthPosition - startYear * 12;
-            if (offset > 0) {
+            if (offset > 0 && offset < 12) {
                 NUM_ITEMS_CURRENT = offset;
                 number = thisMonthPosition - NUM_ITEMS_CURRENT;
             } else {
