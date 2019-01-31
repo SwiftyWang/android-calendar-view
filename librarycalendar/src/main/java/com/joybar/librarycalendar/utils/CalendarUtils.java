@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 /**
@@ -109,12 +110,9 @@ public class CalendarUtils {
      * @param month
      * @return
      */
-    public static int getdataCount(int year, int month) {
-        Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.YEAR, year);
-        cal.set(Calendar.MONTH, month - 1);
-        int count = cal.getActualMaximum(Calendar.DATE);
-        return count;
+    public static int getDayCount(int year, int month) {
+        Calendar cal = new GregorianCalendar(year, month - 1, 1);
+        return cal.getActualMaximum(Calendar.DAY_OF_MONTH);
     }
 
     /**
@@ -127,7 +125,7 @@ public class CalendarUtils {
      */
     public static List<CalendarSimpleDate> getEverydayOfMonth(int year, int month) throws ParseException {
         List<CalendarSimpleDate> list = new ArrayList<>();
-        int count = getdataCount(year, month); //获取当月的天数
+        int count = getDayCount(year, month); //获取当月的天数
         Calendar cal = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         cal.setTime(sdf.parse(year + "-" + month + "-" + 1));
