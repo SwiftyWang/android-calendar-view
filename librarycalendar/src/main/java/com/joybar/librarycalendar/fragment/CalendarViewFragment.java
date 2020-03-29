@@ -48,20 +48,6 @@ public class CalendarViewFragment extends Fragment {
             mProgress.setVisibility(View.GONE);
             mCalendarDateList = calendarDateList;
             updateList();
-            mGridView.post(new Runnable() {
-                @Override
-                public void run() {
-                    //需要默认选中当天
-                    List<CalendarDate> mListData = ((CalendarGridViewAdapter) mGridView.getAdapter()).getListData();
-                    int count = mListData.size();
-                    for (int i = 0; i < count; i++) {
-                        if (mListData.get(i).isSelect()) {
-                            mGridView.setItemChecked(i, true);
-                        }
-                    }
-
-                }
-            });
         }
     };
 
@@ -132,7 +118,7 @@ public class CalendarViewFragment extends Fragment {
                     //单选
                     if (mCalendarDateList.get(position).isInThisMonth()) {
                         addSelectedDate(calendarDate);
-                        mCalendarDateList.get(position).setIsSelect(true);
+                        mCalendarDateList.get(position).nextSelectStatus();
                         onDateClickListener.onDateClick(calendarDate);
                     } else {
                         mGridView.setItemChecked(position, false);
