@@ -5,12 +5,11 @@ apply plugin: 'com.jfrog.bintray'
 version = "1.0.6"
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
+    compileSdkVersion Configs.COMPILE_SDK
 
     defaultConfig {
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
+        minSdkVersion Configs.MIN_SDK
+        targetSdkVersion Configs.TARGET_SDK
         versionCode 1
         versionName "1.0"
     }
@@ -29,8 +28,8 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    testImplementation "junit:junit:$junitVersion"
-    implementation "com.android.support:appcompat-v7:$supportVersion"
+    testImplementation "junit:junit:${Versions.JUNIT}"
+    implementation "androidx.appcompat:appcompat:${Versions.ANDROIDX_APPCOMPAT}"
 }
 
 def siteUrl = 'https://github.com/myjoybar/android-calendar-view'

@@ -98,6 +98,14 @@ public class CalendarDate implements Parcelable {
         return mSelectStatus;
     }
 
+    public void setSelectStatus(SelectStatus selectStatus) {
+        mSelectStatus = selectStatus;
+    }
+
+    public SelectStatus getSelectStatus() {
+        return mSelectStatus;
+    }
+
     public enum SelectStatus {
         NotSelect,
         SelectMorning,

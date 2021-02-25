@@ -3,7 +3,6 @@ package com.joybar.librarycalendar.fragment;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +17,8 @@ import com.joybar.librarycalendar.data.CalendarDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+
+import androidx.fragment.app.Fragment;
 
 
 /**
@@ -48,6 +49,20 @@ public class CalendarViewFragment extends Fragment {
             mProgress.setVisibility(View.GONE);
             mCalendarDateList = calendarDateList;
             updateList();
+            mGridView.post(new Runnable() {
+                @Override
+                public void run() {
+                    //需要默认选中当天
+                    List<CalendarDate> mListData = ((CalendarGridViewAdapter) mGridView.getAdapter()).getListData();
+                    int count = mListData.size();
+                    for (int i = 0; i < count; i++) {
+                        if (mListData.get(i).getSelectStatus() == CalendarDate.SelectStatus.SelectWhole) {
+                            mGridView.setItemChecked(i, true);
+                        }
+                    }
+
+                }
+            });
         }
     };
 
@@ -129,11 +144,11 @@ public class CalendarViewFragment extends Fragment {
                         // mGridView.getCheckedItemIds()
                         if (!mGridView.isItemChecked(position)) {
                             removeSelectedDate(calendarDate);
-                            mCalendarDateList.get(position).setIsSelect(false);
+                            mCalendarDateList.get(position).setSelectStatus(CalendarDate.SelectStatus.NotSelect);
                             onDateCancelListener.onDateCancel(calendarDate);
                         } else {
                             addSelectedDate(calendarDate);
-                            mCalendarDateList.get(position).setIsSelect(true);
+                            mCalendarDateList.get(position).setSelectStatus(CalendarDate.SelectStatus.SelectWhole);
                             onDateClickListener.onDateClick(calendarDate);
                         }
 

@@ -1,8 +1,5 @@
 package com.joybar.librarycalendar.utils;
 
-
-import android.support.annotation.NonNull;
-
 import com.joybar.librarycalendar.data.CalendarDate;
 import com.joybar.librarycalendar.data.Lunar;
 import com.joybar.librarycalendar.data.Solar;
@@ -17,6 +14,8 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import androidx.annotation.NonNull;
 
 public class LunarSolarConverter {
 
@@ -486,7 +485,7 @@ public class LunarSolarConverter {
                 solar.solarDay = LunarSolarConverter.toInt(m.group(2));
                 solar.isSFestival = true;
                 solar.solarFestivalName = m.group(4);
-                CalendarDate calendarDate = new CalendarDate(false, false, solar, SolarToLunar(solar));
+                CalendarDate calendarDate = new CalendarDate(false, CalendarDate.SelectStatus.NotSelect, solar, SolarToLunar(solar));
                 calendarDates.add(calendarDate);
             }
         }
@@ -499,7 +498,7 @@ public class LunarSolarConverter {
                 lunar.lunarDay = LunarSolarConverter.toInt(m.group(2));
                 lunar.isLFestival = true;
                 lunar.lunarFestivalName = m.group(4);
-                CalendarDate calendarDate = new CalendarDate(false, false, LunarToSolar(lunar), lunar);
+                CalendarDate calendarDate = new CalendarDate(false, CalendarDate.SelectStatus.NotSelect, LunarToSolar(lunar), lunar);
                 calendarDates.add(calendarDate);
             }
         }

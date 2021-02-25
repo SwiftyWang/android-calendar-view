@@ -44,7 +44,7 @@ public class CalendarDateController {
             String dateString = solar.getDateString();
             boolean isSelected = selectedDates.contains(dateString);
             Lunar lunar = LunarSolarConverter.SolarToLunar(solar);
-            mListDate.add(new CalendarDate(month == list.get(i).getMonth(), isSelected, solar, lunar));
+            mListDate.add(new CalendarDate(month == list.get(i).getMonth(), isSelected ? CalendarDate.SelectStatus.SelectWhole : CalendarDate.SelectStatus.NotSelect, solar, lunar));
         }
         cachedDate.put(cacheKey, mListDate);
         return mListDate;
